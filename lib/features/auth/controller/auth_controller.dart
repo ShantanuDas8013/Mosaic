@@ -1,16 +1,34 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mosaic/core/utils.dart';
 import 'package:mosaic/features/auth/repository/auth_repository.dart';
+import 'package:mosaic/models/user_model.dart';
 
-final authControllerProvider = Provider(
-  (ref) => AuthController(authRepository: ref.read(authRepositoryProvider)),
+final userProvider = StateProvider<UserModel?>((ref) => null);
+
+final authControllerProvider = StateNotifierProvider<AuthController, bool>(
+  (ref) => AuthController(
+    authRepository: ref.watch(authRepositoryProvider),
+    ref: ref,
+  ),
 );
 
-class AuthController {
+class AuthController extends StateNotifier<bool> {
   final AuthRepository _authRepository;
-  AuthController({required AuthRepository authRepository})
-    : _authRepository = authRepository;
+  final Ref _ref;
+  AuthController({required AuthRepository authRepository, required Ref ref})
+    : _authRepository = authRepository,
+      _ref = ref,
+      super(false);
 
-  void signInWithGoogle() {
-    _authRepository.signInWithGoogle();
+  void signInWithGoogle(BuildContext context) async {
+    state = true;
+    final user = await _authRepository.signInWithGoogle();
+    state = false;
+    user.fold(
+      (l) => showSnackBar(context, l.message),
+      (userModel) =>
+          _ref.read(userProvider.notifier).update((state) => userModel),
+    );
   }
 }

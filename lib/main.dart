@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/features/auth/screens/login_screen.dart';
 import 'package:mosaic/firebase_options.dart';
+import 'package:mosaic/router.dart';
 import 'package:mosaic/theme/pallete.dart';
+import 'package:routemaster/routemaster.dart';
 
 void main() async {
   // Add this line to initialize the binding
@@ -19,11 +21,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: Pallete.darkModeAppTheme,
-      home: const LoginScreen(), //Login Screen
+      routerDelegate: RoutemasterDelegate(
+        routesBuilder: (context) => loggedOutRoute,
+      ),
+      routeInformationParser: const RoutemasterParser(),
     );
   }
 }
