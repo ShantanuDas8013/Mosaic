@@ -15,18 +15,11 @@ class Pallete {
     cardColor: greyColor,
     appBarTheme: const AppBarTheme(
       backgroundColor: drawerColor,
-      iconTheme: IconThemeData(
-        color: whiteColor,
-      ),
+      iconTheme: IconThemeData(color: whiteColor),
     ),
-    drawerTheme: const DrawerThemeData(
-      backgroundColor: drawerColor,
-    ),
+    drawerTheme: const DrawerThemeData(backgroundColor: drawerColor),
     primaryColor: redColor,
-    colorScheme: ColorScheme.dark(
-      surface: drawerColor,
-      primary: redColor,
-    ),
+    colorScheme: ColorScheme.dark(surface: drawerColor, primary: redColor),
   );
 
   static var lightModeAppTheme = ThemeData.light().copyWith(
@@ -35,17 +28,10 @@ class Pallete {
     appBarTheme: const AppBarTheme(
       backgroundColor: whiteColor,
       elevation: 0,
-      iconTheme: IconThemeData(
-        color: blackColor,
-      ),
+      iconTheme: IconThemeData(color: blackColor),
     ),
-    drawerTheme: const DrawerThemeData(
-      backgroundColor: whiteColor,
-    ),
+    drawerTheme: const DrawerThemeData(backgroundColor: whiteColor),
     primaryColor: redColor,
-    colorScheme: ColorScheme.light(
-      surface: whiteColor,
-      primary: redColor,
-    ),
+    colorScheme: ColorScheme.light(surface: whiteColor, primary: redColor),
   );
 }

@@ -70,11 +70,14 @@ class AuthRepository {
   }
 
   Stream<UserModel> getUserData(String uid) {
-    return _users
-        .doc(uid)
-        .snapshots()
-        .map(
-          (event) => UserModel.fromMap(event.data() as Map<String, dynamic>),
-        );
+    return _users.doc(uid).snapshots().map((event) {
+      final data = event.data() as Map<String, dynamic>?;
+      if (data == null) {
+        // Handle the null case - perhaps return a default user model
+        // or throw an exception
+        throw Exception('User data not found');
+      }
+      return UserModel.fromMap(data);
+    });
   }
 }

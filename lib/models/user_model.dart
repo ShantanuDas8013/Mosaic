@@ -60,9 +60,10 @@ class UserModel {
       uid: map['uid'] as String,
       isAuthenticated: map['isAuthenticated'] as bool,
       karma: map['karma'] as int,
-      awards: List<String>.from((map['awards'] as List<String>)),
+      awards: List<String>.from((map['awards'] as List<dynamic>)),
     );
   }
+
   @override
   String toString() {
     return 'UserModel(name: $name, profilePic: $profilePic, bannner: $bannner, uid: $uid, isAuthenticated: $isAuthenticated, karma: $karma, awards: $awards)';
