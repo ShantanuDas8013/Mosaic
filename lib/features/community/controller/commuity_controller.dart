@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/core/constants/constants.dart';
+import 'package:mosaic/core/providers/storage_repository_provider.dart';
 import 'package:mosaic/core/utils.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
 import 'package:mosaic/features/community/repository/communitory_repository.dart';
@@ -15,7 +18,9 @@ final userCommunitiesProvider = StreamProvider((ref) {
 final communityControllerProvider =
     StateNotifierProvider<CommunityController, bool>((ref) {
       final communityRepository = ref.watch(communityRepositoryProvider);
+      final storageRepository = ref.watch(storageRepositoryProvider);
       return CommunityController(
+        storageRepository: storageRepository,
         communityRepository: communityRepository,
         ref: ref,
       );
@@ -30,11 +35,14 @@ final getCommunityByNameProvider = StreamProvider.family((ref, String name) {
 class CommunityController extends StateNotifier<bool> {
   final CommunitoryRespository _communitoryRespository;
   final Ref _ref;
+  final StorageRepository _storageRepository;
   CommunityController({
     required CommunitoryRespository communityRepository,
     required Ref ref,
+    required StorageRepository storageRepository,
   }) : _communitoryRespository = communityRepository,
        _ref = ref,
+       _storageRepository = storageRepository,
        super(false);
   void createCommunity(String name, BuildContext context) async {
     state = true;
@@ -62,5 +70,43 @@ class CommunityController extends StateNotifier<bool> {
 
   Stream<Community> getCommunityByName(String name) {
     return _communitoryRespository.getCommunityByName(name);
+  }
+
+  void editCommunity({
+    required File? profileFile,
+    required File? bannerFile,
+    required BuildContext context,
+    required Community community,
+  }) async {
+    state = true;
+    if (profileFile != null) {
+      final res = await _storageRepository.storeFile(
+        path: 'communities/profile',
+        id: community.name,
+        file: profileFile,
+      );
+      res.fold(
+        (l) => showSnackBar(context, l.message),
+        (r) => community = community.copyWith(avatar: r),
+      );
+    }
+
+    if (bannerFile != null) {
+      final res = await _storageRepository.storeFile(
+        path: 'communities/banner',
+        id: community.name,
+        file: bannerFile,
+      );
+      res.fold(
+        (l) => showSnackBar(context, l.message),
+        (r) => community = community.copyWith(banner: r),
+      );
+    }
+    state = false;
+    final res = await _communitoryRespository.editCommunity(community);
+    res.fold(
+      (l) => showSnackBar(context, l.message),
+      (r) => Routemaster.of(context).pop(),
+    );
   }
 }
