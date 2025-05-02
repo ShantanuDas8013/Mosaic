@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
+import 'package:mosaic/features/home/delegates/search_community_delegate.dart';
 import 'package:mosaic/features/home/drawers/community_list_darwer.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -64,7 +65,12 @@ class HomeScreen extends ConsumerWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                showSearch(
+                  context: context,
+                  delegate: SearchCommunityDelegate(ref),
+                );
+              },
               icon: const Icon(Icons.search_rounded),
               tooltip: 'Search',
             ),
