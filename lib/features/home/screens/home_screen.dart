@@ -3,12 +3,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
 import 'package:mosaic/features/home/delegates/search_community_delegate.dart';
 import 'package:mosaic/features/home/drawers/community_list_darwer.dart';
+import 'package:mosaic/features/home/drawers/profile_drawer.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  void displayDrawer(BuildContext context) {
-    Scaffold.of(context).openDrawer();
+  // Create a GlobalKey to access the ScaffoldState
+  static final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>();
+
+  // Update methods to use the GlobalKey instead of context
+  void displayDrawer() {
+    _scaffoldKey.currentState?.openDrawer();
+  }
+
+  void displayEndDrawer() {
+    _scaffoldKey.currentState?.openEndDrawer();
   }
 
   @override
@@ -17,6 +27,7 @@ class HomeScreen extends ConsumerWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      key: _scaffoldKey, // Add the GlobalKey to the Scaffold
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -47,7 +58,9 @@ class HomeScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: IconButton(
-                onPressed: () => displayDrawer(context),
+                onPressed:
+                    () =>
+                        displayDrawer(), // Updated to use the method without context
                 icon: const Icon(Icons.menu_rounded, size: 22),
                 padding: EdgeInsets.zero,
                 tooltip: 'Menu',
@@ -77,13 +90,11 @@ class HomeScreen extends ConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.only(right: 12.0, left: 6.0),
-            child: GestureDetector(
-              onTap: () {
-                // Profile picture is clickable but has no action defined
-                // Can add navigation to profile page or other profile-related actions
-                debugPrint('Profile picture clicked');
-              },
-              child: Container(
+            child: IconButton(
+              onPressed:
+                  () =>
+                      displayEndDrawer(), // Updated to use the method without context
+              icon: Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.white, width: 2),
                   borderRadius: BorderRadius.circular(20),
@@ -93,11 +104,14 @@ class HomeScreen extends ConsumerWidget {
                   radius: 16,
                 ),
               ),
+              padding: EdgeInsets.zero,
+              tooltip: 'Profile',
             ),
           ),
         ],
       ),
       drawer: const CommunityListDarwer(),
+      endDrawer: const ProfileDrawer(),
       backgroundColor:
           isDarkMode ? const Color(0xFF121212) : Colors.grey.shade100,
       body: Column(
