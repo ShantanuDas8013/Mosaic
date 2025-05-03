@@ -1,39 +1,101 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/core/common/error_text.dart';
 import 'package:mosaic/core/common/loader.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
 import 'package:mosaic/features/community/controller/commuity_controller.dart';
-import 'package:routemaster/routemaster.dart';
+import 'package:mosaic/features/community/screens/mod_tools_screen.dart';
+import 'package:mosaic/models/community_model.dart';
 
-class CommunityScreen extends ConsumerWidget {
+class CommunityScreen extends ConsumerStatefulWidget {
   final String name;
   const CommunityScreen({required this.name, super.key});
 
+  @override
+  ConsumerState<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends ConsumerState<CommunityScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   void navigateToModTools(BuildContext context) {
-    Routemaster.of(context).push('/mod-tools/$name');
+    _scaffoldKey.currentState?.openEndDrawer();
+  }
+
+  void joinCommunity(Community community, BuildContext context) {
+    ref
+        .read(communityControllerProvider.notifier)
+        .joinCommunity(community, context);
+  }
+
+  // New method to show enlarged image in a dialog
+  void _showEnlargedImage(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              InteractiveViewer(
+                panEnabled: true,
+                boundaryMargin: const EdgeInsets.all(20),
+                minScale: 0.5,
+                maxScale: 4,
+                child: Image.network(imageUrl, fit: BoxFit.contain),
+              ),
+              Positioned(
+                top: 20,
+                right: 20,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final user = ref.watch(userProvider)!;
+
     return Scaffold(
+      key: _scaffoldKey,
+      endDrawer: ModToolsScreen(name: widget.name),
+      endDrawerEnableOpenDragGesture: false,
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        toolbarHeight: 0,
+      ),
       body: ref
-          .watch(getCommunityByNameProvider(name))
+          .watch(getCommunityByNameProvider(widget.name))
           .when(
             data:
                 (community) => NestedScrollView(
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return [
                       SliverAppBar(
+                        automaticallyImplyLeading: true,
+                        actions: const <Widget>[],
                         expandedHeight: 150,
                         flexibleSpace: Stack(
                           children: [
                             Positioned.fill(
-                              child: Image.network(
-                                community.banner,
-                                fit: BoxFit.cover,
+                              child: GestureDetector(
+                                onTap:
+                                    () => _showEnlargedImage(community.banner),
+                                child: Image.network(
+                                  community.banner,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                           ],
@@ -45,8 +107,14 @@ class CommunityScreen extends ConsumerWidget {
                           delegate: SliverChildListDelegate([
                             Align(
                               alignment: Alignment.topLeft,
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(community.avatar),
+                              child: GestureDetector(
+                                onTap:
+                                    () => _showEnlargedImage(community.avatar),
+                                child: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    community.avatar,
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 5),
@@ -93,7 +161,9 @@ class CommunityScreen extends ConsumerWidget {
                                           horizontal: 25,
                                         ),
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        joinCommunity(community, context);
+                                      },
                                       child: Text(
                                         community.members.contains(user.uid)
                                             ? 'Joined'

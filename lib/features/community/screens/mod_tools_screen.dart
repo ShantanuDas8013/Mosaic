@@ -9,6 +9,10 @@ class ModToolsScreen extends StatelessWidget {
     Routemaster.of(context).push('/edit-community/$name');
   }
 
+  void navigateToAddMods(BuildContext context) {
+    Routemaster.of(context).push('/add-mods/$name');
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -130,7 +134,9 @@ class ModToolsScreen extends StatelessWidget {
                   color:
                       isDarkMode ? Colors.grey.shade600 : Colors.grey.shade400,
                 ),
-                onTap: () {},
+                onTap: () {
+                  navigateToAddMods(context);
+                },
               ),
             ),
 

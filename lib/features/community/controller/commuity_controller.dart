@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mosaic/core/constants/constants.dart';
+import 'package:mosaic/core/failure.dart';
 import 'package:mosaic/core/providers/storage_repository_provider.dart';
 import 'package:mosaic/core/utils.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
@@ -64,6 +66,31 @@ class CommunityController extends StateNotifier<bool> {
     res.fold((l) => showSnackBar(context, l.message), (r) {
       showSnackBar(context, 'Community Created');
       Routemaster.of(context).pop();
+    });
+  }
+
+  void joinCommunity(Community community, BuildContext context) async {
+    final user = _ref.read(userProvider)!;
+
+    Either<Failure, void> res;
+    if (community.members.contains(user.uid)) {
+      res = await _communitoryRespository.leaveCommunity(
+        community.name,
+        user.uid,
+      );
+    } else {
+      res = await _communitoryRespository.joinCommunity(
+        community.name,
+        user.uid,
+      );
+    }
+
+    res.fold((l) => showSnackBar(context, l.message), (r) {
+      if (community.members.contains(user.uid)) {
+        showSnackBar(context, 'Community Left Succesfully');
+      } else {
+        showSnackBar(context, 'Community Join Successfully');
+      }
     });
   }
 
