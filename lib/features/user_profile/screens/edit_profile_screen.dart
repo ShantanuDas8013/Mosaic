@@ -67,11 +67,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = ref.watch(userProfileControllerProvider);
     return ref
         .watch(getUserDataProvider(widget.uid))
         .when(
           data: (user) {
-            // Set the initial value for the name controller if not already set
             if (nameController.text.isEmpty) {
               nameController.text = user.name;
             }
@@ -95,127 +95,136 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                 ],
               ),
-              body: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 200,
-                      child: Stack(
-                        children: [
-                          GestureDetector(
-                            onTap: selectBannerImage,
-                            child: DottedBorder(
-                              borderType: BorderType.RRect,
-                              radius: Radius.circular(10),
-                              dashPattern: [10, 4],
-                              strokeCap: StrokeCap.round,
-                              color:
-                                  Pallete
-                                      .darkModeAppTheme
-                                      .textTheme
-                                      .bodyMedium!
-                                      .color!,
-                              child: Container(
-                                width: double.infinity,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child:
-                                    bannerFile != null
-                                        ? Image.file(bannerFile!)
-                                        : user.bannner.isEmpty ||
-                                            user.bannner ==
-                                                Constants.bannerDefault
-                                        ? const Center(
-                                          child: Icon(
-                                            Icons.camera_alt_outlined,
-                                            size: 40,
+              body:
+                  isLoading
+                      ? const Loader()
+                      : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 200,
+                              child: Stack(
+                                children: [
+                                  GestureDetector(
+                                    onTap: selectBannerImage,
+                                    child: DottedBorder(
+                                      borderType: BorderType.RRect,
+                                      radius: Radius.circular(10),
+                                      dashPattern: [10, 4],
+                                      strokeCap: StrokeCap.round,
+                                      color:
+                                          Pallete
+                                              .darkModeAppTheme
+                                              .textTheme
+                                              .bodyMedium!
+                                              .color!,
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 150,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
                                           ),
-                                        )
-                                        : Image.network(user.bannner),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 20,
-                            left: 20,
-                            child: GestureDetector(
-                              onTap: selectProfileImage,
-                              child:
-                                  profileFile != null
-                                      ? CircleAvatar(
-                                        backgroundImage: FileImage(
-                                          profileFile!,
                                         ),
-                                        radius: 32,
-                                      )
-                                      : CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                          user.profilePic,
-                                        ),
-                                        radius: 32,
+                                        child:
+                                            bannerFile != null
+                                                ? Image.file(bannerFile!)
+                                                : user.bannner.isEmpty ||
+                                                    user.bannner ==
+                                                        Constants.bannerDefault
+                                                ? const Center(
+                                                  child: Icon(
+                                                    Icons.camera_alt_outlined,
+                                                    size: 40,
+                                                  ),
+                                                )
+                                                : Image.network(user.bannner),
                                       ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 20,
+                                    left: 20,
+                                    child: GestureDetector(
+                                      onTap: selectProfileImage,
+                                      child:
+                                          profileFile != null
+                                              ? CircleAvatar(
+                                                backgroundImage: FileImage(
+                                                  profileFile!,
+                                                ),
+                                                radius: 32,
+                                              )
+                                              : CircleAvatar(
+                                                backgroundImage: NetworkImage(
+                                                  user.profilePic,
+                                                ),
+                                                radius: 32,
+                                              ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 20),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Display Name',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  TextField(
+                                    controller: nameController,
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      hintText: 'Enter your display name',
+                                      labelText: 'Name',
+                                      helperText:
+                                          'This is how others will see you',
+                                      prefixIcon: const Icon(Icons.person),
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () => nameController.clear(),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                          color: Colors.blue,
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.grey.shade300,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                            vertical: 16,
+                                            horizontal: 16,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Display Name',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
-                            controller: nameController,
-                            decoration: InputDecoration(
-                              filled: true,
-                              hintText: 'Enter your display name',
-                              labelText: 'Name',
-                              helperText: 'This is how others will see you',
-                              prefixIcon: const Icon(Icons.person),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () => nameController.clear(),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: const BorderSide(
-                                  color: Colors.blue,
-                                  width: 2,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 16,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             );
           },
           loading: () => const Loader(),
