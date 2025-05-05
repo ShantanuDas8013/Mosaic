@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
 import 'package:mosaic/theme/pallete.dart';
+import 'package:routemaster/routemaster.dart';
 
 class ProfileDrawer extends ConsumerWidget {
   const ProfileDrawer({super.key});
@@ -10,9 +11,18 @@ class ProfileDrawer extends ConsumerWidget {
     ref.read(authControllerProvider.notifier).logout();
   }
 
+  void navigateToUserProfile(BuildContext context, String uid) {
+    Routemaster.of(context).push('/u/$uid');
+  }
+
+  void toggleTheme(WidgetRef ref) {
+    ref.read(themeNotifierProvider.notifier).toggleTheme();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(userProvider)!;
+    final isDarkMode = ref.watch(themeNotifierProvider);
     return Drawer(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 2.0,
@@ -20,7 +30,6 @@ class ProfileDrawer extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile header with gradient background
             Container(
               padding: const EdgeInsets.symmetric(vertical: 20.0),
               decoration: BoxDecoration(
@@ -77,7 +86,9 @@ class ProfileDrawer extends ConsumerWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              onTap: () {},
+              onTap: () {
+                navigateToUserProfile(context, user.uid);
+              },
             ),
 
             const Divider(indent: 16, endIndent: 16),
@@ -115,8 +126,8 @@ class ProfileDrawer extends ConsumerWidget {
                     ],
                   ),
                   Switch.adaptive(
-                    value: true,
-                    onChanged: (val) {},
+                    value: isDarkMode,
+                    onChanged: (val) => toggleTheme(ref),
                     activeColor: Colors.white,
                     activeTrackColor: Colors.green,
                   ),

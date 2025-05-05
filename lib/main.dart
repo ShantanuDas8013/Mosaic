@@ -42,6 +42,9 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the current theme state
+    final isDarkMode = ref.watch(themeNotifierProvider);
+
     return ref
         .watch(authStateChangedProvider)
         .when(
@@ -49,7 +52,11 @@ class _MyAppState extends ConsumerState<MyApp> {
               (data) => MaterialApp.router(
                 debugShowCheckedModeBanner: false,
                 title: 'Reddit Tutorial',
-                theme: Pallete.darkModeAppTheme,
+                // Use theme based on current state
+                theme:
+                    isDarkMode
+                        ? Pallete.darkModeAppTheme
+                        : Pallete.lightModeAppTheme,
                 routerDelegate: RoutemasterDelegate(
                   routesBuilder: (context) {
                     if (data != null) {

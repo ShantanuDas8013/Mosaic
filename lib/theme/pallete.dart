@@ -1,4 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// Theme state provider
+final themeNotifierProvider = StateNotifierProvider<ThemeNotifier, bool>((ref) {
+  return ThemeNotifier();
+});
+
+// Theme state notifier
+class ThemeNotifier extends StateNotifier<bool> {
+  // true = dark theme, false = light theme
+  ThemeNotifier() : super(true);
+
+  void toggleTheme() {
+    state = !state;
+  }
+}
 
 class Pallete {
   // Colors
