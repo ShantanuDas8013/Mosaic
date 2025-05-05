@@ -8,7 +8,7 @@ import 'package:mosaic/core/constants/constants.dart';
 import 'package:mosaic/core/utils.dart';
 import 'package:mosaic/features/community/controller/commuity_controller.dart';
 import 'package:mosaic/models/community_model.dart';
-import 'package:mosaic/theme/pallete.dart';
+import 'package:mosaic/router.dart';
 
 class EditCommunityScreen extends ConsumerStatefulWidget {
   final String name;
@@ -58,21 +58,20 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
         .when(
           data:
               (community) => Scaffold(
-                backgroundColor:
-                    Pallete.darkModeAppTheme.scaffoldBackgroundColor,
+                backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                 appBar: AppBar(
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => context.goBack(),
                   ),
-                  title: Text('Edit Community'),
+                  title: const Text('Edit Community'),
                   centerTitle: false,
                   actions: [
                     TextButton(
                       onPressed: () {
                         save(community);
                       },
-                      child: Text(
+                      child: const Text(
                         'Save',
                         style: TextStyle(color: Colors.blueAccent),
                       ),
@@ -94,15 +93,13 @@ class _EditCommunityScreenState extends ConsumerState<EditCommunityScreen> {
                                       onTap: selectBannerImage,
                                       child: DottedBorder(
                                         borderType: BorderType.RRect,
-                                        radius: Radius.circular(10),
-                                        dashPattern: [10, 4],
+                                        radius: const Radius.circular(10),
+                                        dashPattern: const [10, 4],
                                         strokeCap: StrokeCap.round,
                                         color:
-                                            Pallete
-                                                .darkModeAppTheme
-                                                .textTheme
-                                                .bodyMedium!
-                                                .color!,
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium!.color!,
                                         child: Container(
                                           width: double.infinity,
                                           height: 150,

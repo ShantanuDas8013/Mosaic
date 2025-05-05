@@ -4,6 +4,7 @@ import 'package:mosaic/core/common/error_text.dart';
 import 'package:mosaic/core/common/loader.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
 import 'package:mosaic/features/community/controller/commuity_controller.dart';
+import 'package:mosaic/router.dart';
 
 class AddModsScreen extends ConsumerStatefulWidget {
   final String name;
@@ -38,7 +39,7 @@ class _AddModsScreenState extends ConsumerState<AddModsScreen> {
             content: Text('Add ${uids.length} moderators to r/${widget.name}?'),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => context.goBack(),
                 child: const Text('Cancel'),
               ),
               FilledButton(
@@ -46,7 +47,7 @@ class _AddModsScreenState extends ConsumerState<AddModsScreen> {
                   ref
                       .read(communityControllerProvider.notifier)
                       .addMods(widget.name, uids.toList(), context);
-                  Navigator.pop(context);
+                  context.goBack();
                 },
                 child: const Text('Save'),
               ),

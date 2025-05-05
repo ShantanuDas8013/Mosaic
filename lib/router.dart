@@ -10,6 +10,13 @@ import 'package:mosaic/features/user_profile/screens/edit_profile_screen.dart';
 import 'package:mosaic/features/user_profile/screens/user_profile_screen.dart';
 import 'package:routemaster/routemaster.dart';
 
+// Add this extension method to help with back navigation
+extension RoutemasterContextExtension on BuildContext {
+  void goBack() {
+    Routemaster.of(this).history.back();
+  }
+}
+
 final loggedOutRoute = RouteMap(
   routes: {'/': (_) => const MaterialPage(child: LoginScreen())},
 );
