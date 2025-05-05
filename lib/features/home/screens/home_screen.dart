@@ -8,11 +8,8 @@ import 'package:mosaic/features/home/drawers/profile_drawer.dart';
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
-  // Create a GlobalKey to access the ScaffoldState
   static final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>();
-
-  // Update methods to use the GlobalKey instead of context
   void displayDrawer() {
     _scaffoldKey.currentState?.openDrawer();
   }
@@ -182,9 +179,6 @@ class HomeScreen extends ConsumerWidget {
               ],
             ),
           ),
-
-          // Your existing content can go here
-          // This is where you'd display posts, communities, etc.
           Expanded(
             child: Center(
               child: Text(
@@ -194,6 +188,37 @@ class HomeScreen extends ConsumerWidget {
                 ),
               ),
             ),
+          ),
+          BottomNavigationBar(
+            backgroundColor:
+                isDarkMode ? const Color(0xFF212121) : Colors.white,
+            selectedItemColor: Theme.of(context).colorScheme.primary,
+            unselectedItemColor:
+                isDarkMode ? Colors.white60 : Colors.grey.shade600,
+            type: BottomNavigationBarType.fixed,
+            elevation: 8.0,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.post_add),
+                label: 'Post',
+              ),
+            ],
+            currentIndex: 0,
+            onTap: (index) {
+              if (index == 0) {
+                // Already on home screen, do nothing
+                // You could add refresh functionality here if needed
+              } else if (index == 1) {
+                // Post button - show message for now as the page doesn't exist yet
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Post creation feature coming soon!'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
           ),
         ],
       ),

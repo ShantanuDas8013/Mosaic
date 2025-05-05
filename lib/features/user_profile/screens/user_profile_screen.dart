@@ -13,6 +13,39 @@ class UserProfileScreen extends ConsumerWidget {
     Routemaster.of(context).push('/edit-profile/$uid');
   }
 
+  // Method to show enlarged image in a dialog
+  void _showEnlargedImage(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              InteractiveViewer(
+                panEnabled: true,
+                boundaryMargin: const EdgeInsets.all(20),
+                minScale: 0.5,
+                maxScale: 4,
+                child: Image.network(imageUrl, fit: BoxFit.contain),
+              ),
+              Positioned(
+                top: 20,
+                right: 20,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
@@ -30,9 +63,16 @@ class UserProfileScreen extends ConsumerWidget {
                         flexibleSpace: Stack(
                           children: [
                             Positioned.fill(
-                              child: Image.network(
-                                user.bannner,
-                                fit: BoxFit.cover,
+                              child: GestureDetector(
+                                onTap:
+                                    () => _showEnlargedImage(
+                                      context,
+                                      user.bannner,
+                                    ),
+                                child: Image.network(
+                                  user.bannner,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
                             Container(
@@ -40,9 +80,18 @@ class UserProfileScreen extends ConsumerWidget {
                               padding: const EdgeInsets.all(
                                 20,
                               ).copyWith(bottom: 70),
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(user.profilePic),
-                                radius: 45,
+                              child: GestureDetector(
+                                onTap:
+                                    () => _showEnlargedImage(
+                                      context,
+                                      user.profilePic,
+                                    ),
+                                child: CircleAvatar(
+                                  backgroundImage: NetworkImage(
+                                    user.profilePic,
+                                  ),
+                                  radius: 45,
+                                ),
                               ),
                             ),
                             Container(
