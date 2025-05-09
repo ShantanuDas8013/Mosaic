@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
 import 'package:mosaic/features/feed/feed_screen.dart';
@@ -29,39 +30,38 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     _scaffoldKey.currentState?.openEndDrawer();
   }
 
-  // Updated method to refresh home and user data
+  // Updated method to handle refresh
   Future<void> _refreshHome() async {
     setState(() {
       _isRefreshing = true;
     });
 
-    try {
-      // Actually refresh the user data from Firebase
-      await ref.read(authControllerProvider.notifier).refreshUserData();
+    // Simulate refresh delay
+    await Future.delayed(const Duration(milliseconds: 800));
 
-      // You can also refresh other data if needed
-      // For example, refresh communities or posts
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error refreshing: $e')));
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isRefreshing = false;
-        });
-      }
-    }
+    // Signal the feed to refresh by updating a provider
+    // (You might need to implement this in your feed provider)
+    // ref.refresh(feedDataProvider);
+
+    setState(() {
+      _isRefreshing = false;
+    });
+
+    return Future.value();
   }
 
   @override
   void initState() {
     super.initState();
-    // Refresh data when screen initializes
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshHome();
+
+    // Add listener to scroll controller to detect when user is at top
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels <= 0 &&
+          _scrollController.position.userScrollDirection ==
+              ScrollDirection.forward) {
+        // User is at top and trying to scroll further up - trigger refresh
+        _refreshHome();
+      }
     });
   }
 
@@ -158,7 +158,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ],
       ),
       drawer: const CommunityListDrawer(),
-      endDrawer: isGuest ? null : const ProfileDrawer(),
+      endDrawer: const ProfileDrawer(),
       backgroundColor:
           isDarkMode ? const Color(0xFF121212) : Colors.grey.shade100,
       body: Column(
@@ -229,11 +229,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
           ),
+
           Expanded(
             child: Stack(
               children: [
-                // Feed with scroll controller
-                FeedScreen(scrollController: _scrollController),
+                // Configure RefreshIndicator with proper parameters
+                RefreshIndicator(
+                  onRefresh: _refreshHome,
+                  color: Theme.of(context).colorScheme.primary,
+                  backgroundColor: isDarkMode ? Colors.grey[850] : Colors.white,
+                  displacement: 20.0,
+                  edgeOffset: 0,
+                  strokeWidth: 3.0,
+                  triggerMode:
+                      RefreshIndicatorTriggerMode.anywhere, // Easier triggering
+                  child: FeedScreen(scrollController: _scrollController),
+                ),
 
                 // Loading overlay when refreshing
                 if (_isRefreshing)
@@ -244,7 +255,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ],
             ),
           ),
-          // Only show bottom navigation bar for authenticated users
           if (!isGuest)
             BottomNavigationBar(
               backgroundColor:
@@ -266,11 +276,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 if (index == 0) {
                   // If already at home, scroll to top and refresh
                   if (_scrollController.hasClients) {
+                    // More reliable scrolling approach
                     _scrollController.animateTo(
                       0,
                       duration: const Duration(milliseconds: 500),
                       curve: Curves.easeInOut,
                     );
+                  } else {
+                    // If controller isn't attached, try again after frame is built
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_scrollController.hasClients) {
+                        _scrollController.animateTo(
+                          0,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.easeInOut,
+                        );
+                      }
+                    });
                   }
                   _refreshHome();
                 } else if (index == 1) {

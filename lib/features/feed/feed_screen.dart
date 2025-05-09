@@ -8,7 +8,9 @@ import 'package:mosaic/features/community/controller/commuity_controller.dart';
 import 'package:mosaic/features/post/controller/post_controller.dart';
 
 class FeedScreen extends ConsumerWidget {
-  const FeedScreen({super.key, required ScrollController scrollController});
+  final ScrollController scrollController;
+
+  const FeedScreen({super.key, required this.scrollController});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,6 +27,7 @@ class FeedScreen extends ConsumerWidget {
                     .when(
                       data: (data) {
                         return ListView.builder(
+                          controller: scrollController,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
                             final post = data[index];
@@ -50,6 +53,7 @@ class FeedScreen extends ConsumerWidget {
                   .when(
                     data: (data) {
                       return ListView.builder(
+                        controller: scrollController,
                         itemCount: data.length,
                         itemBuilder: (BuildContext context, int index) {
                           final post = data[index];
