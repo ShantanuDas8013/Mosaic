@@ -31,9 +31,20 @@ class AuthController extends StateNotifier<bool> {
       _ref = ref,
       super(false);
   Stream<User?> get authStateChanged => _authRepository.authStateChanged;
-  void signInWithGoogle(BuildContext context) async {
+  void signInWithGoogle(BuildContext context, bool isFromLogin) async {
     state = true;
-    final user = await _authRepository.signInWithGoogle();
+    final user = await _authRepository.signInWithGoogle(isFromLogin);
+    state = false;
+    user.fold(
+      (l) => showSnackBar(context, l.message),
+      (userModel) =>
+          _ref.read(userProvider.notifier).update((state) => userModel),
+    );
+  }
+
+  void signInAsGuest(BuildContext context) async {
+    state = true;
+    final user = await _authRepository.signInAsGuest();
     state = false;
     user.fold(
       (l) => showSnackBar(context, l.message),
@@ -44,6 +55,18 @@ class AuthController extends StateNotifier<bool> {
 
   Stream<UserModel> getUserData(String uid) {
     return _authRepository.getUserData(uid);
+  }
+
+  Future<void> refreshUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final userModel = await _authRepository.getUserData(user.uid).first;
+        _ref.read(userProvider.notifier).update((_) => userModel);
+      } catch (e) {
+        debugPrint('Error refreshing user data: $e');
+      }
+    }
   }
 
   void logout() async {

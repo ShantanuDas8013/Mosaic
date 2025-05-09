@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/core/common/error_text.dart';
 import 'package:mosaic/core/common/loader.dart';
+import 'package:mosaic/core/common/post_card.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
+import 'package:mosaic/features/user_profile/controller/user_profile_controller.dart';
 import 'package:routemaster/routemaster.dart';
 
 class UserProfileScreen extends ConsumerWidget {
@@ -161,23 +163,23 @@ class UserProfileScreen extends ConsumerWidget {
                       ),
                     ];
                   },
-                  body: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.post_add, size: 60, color: Colors.grey),
-                        SizedBox(height: 20),
-                        Text(
-                          'No posts available yet',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  body: ref
+                      .watch(getUserPostsProvider(uid))
+                      .when(
+                        data: (data) {
+                          return ListView.builder(
+                            itemCount: data.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final post = data[index];
+                              return PostCard(post: post);
+                            },
+                          );
+                        },
+                        error: (error, stackTrace) {
+                          return ErrorText(error: error.toString());
+                        },
+                        loading: () => const Loader(),
+                      ),
                 ),
             error: (error, stackTrace) => ErrorText(error: error.toString()),
             loading: () => const Loader(),

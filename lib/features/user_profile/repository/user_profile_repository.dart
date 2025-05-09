@@ -5,6 +5,7 @@ import 'package:mosaic/core/constants/firebase_constant.dart';
 import 'package:mosaic/core/failure.dart';
 import 'package:mosaic/core/providers/firebase_providers.dart';
 import 'package:mosaic/core/type_defs.dart';
+import 'package:mosaic/models/post_model.dart';
 import 'package:mosaic/models/user_model.dart';
 
 final userProfileRepositoryProvider = Provider((ref) {
@@ -18,8 +19,8 @@ class UserProfileRepository {
 
   CollectionReference get _users =>
       _firestore.collection(FirebaseConstants.usersCollection);
-  // CollectionReference get _posts =>
-  //     _firestore.collection(FirebaseConstants.postsCollection);
+  CollectionReference get _posts =>
+      _firestore.collection(FirebaseConstants.postsCollection);
 
   FutureVoid editProfile(UserModel user) async {
     try {
@@ -31,18 +32,18 @@ class UserProfileRepository {
     }
   }
 
-  // Stream<List<Post>> getUserPosts(String uid) {
-  //   return _posts
-  //       .where('uid', isEqualTo: uid)
-  //       .orderBy('createdAt', descending: true)
-  //       .snapshots()
-  //       .map(
-  //         (event) =>
-  //             event.docs
-  //                 .map((e) => Post.fromMap(e.data() as Map<String, dynamic>))
-  //                 .toList(),
-  //       );
-  // }
+  Stream<List<Post>> getUserPosts(String uid) {
+    return _posts
+        .where('uid', isEqualTo: uid)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map(
+          (event) =>
+              event.docs
+                  .map((e) => Post.fromMap(e.data() as Map<String, dynamic>))
+                  .toList(),
+        );
+  }
 
   FutureVoid updateUserKarma(UserModel user) async {
     try {

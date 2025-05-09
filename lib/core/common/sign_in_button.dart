@@ -4,10 +4,13 @@ import "package:mosaic/core/constants/constants.dart";
 import "package:mosaic/features/auth/controller/auth_controller.dart";
 
 class SignInButton extends ConsumerWidget {
-  const SignInButton({super.key});
+  final bool isFromLogin;
+  const SignInButton({this.isFromLogin = true, super.key});
 
   void signInWithGoogle(BuildContext context, WidgetRef ref) {
-    ref.read(authControllerProvider.notifier).signInWithGoogle(context);
+    ref
+        .read(authControllerProvider.notifier)
+        .signInWithGoogle(context, isFromLogin);
   }
 
   @override
@@ -17,7 +20,7 @@ class SignInButton extends ConsumerWidget {
       icon: Image.asset(Constants.googlePath, width: 35),
       label: const Text(
         'Continue with Google',
-        style: TextStyle(color: Colors.white, fontSize: 18),
+        style: TextStyle(color: Colors.white, fontSize: 16),
       ),
       style: ButtonStyle(
         shape: WidgetStateProperty.all(

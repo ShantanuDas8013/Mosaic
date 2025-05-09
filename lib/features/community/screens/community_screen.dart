@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/core/common/error_text.dart';
 import 'package:mosaic/core/common/loader.dart';
+import 'package:mosaic/core/common/post_card.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
 import 'package:mosaic/features/community/controller/commuity_controller.dart';
 import 'package:mosaic/features/community/screens/mod_tools_screen.dart';
@@ -28,7 +29,6 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
         .joinCommunity(community, context);
   }
 
-  // New method to show enlarged image in a dialog
   void _showEnlargedImage(String imageUrl) {
     showDialog(
       context: context,
@@ -64,17 +64,12 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider)!;
+    final isGuest = !user.isAuthenticated;
 
     return Scaffold(
       key: _scaffoldKey,
       endDrawer: ModToolsScreen(name: widget.name),
       endDrawerEnableOpenDragGesture: false,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        toolbarHeight: 0,
-      ),
       body: ref
           .watch(getCommunityByNameProvider(widget.name))
           .when(
@@ -83,9 +78,9 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return [
                       SliverAppBar(
-                        automaticallyImplyLeading: true,
-                        actions: const <Widget>[],
-                        expandedHeight: 150,
+                        expandedHeight: 250,
+                        floating: true,
+                        snap: true,
                         flexibleSpace: Stack(
                           children: [
                             Positioned.fill(
@@ -98,15 +93,11 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      SliverPadding(
-                        padding: const EdgeInsets.all(16),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate([
-                            Align(
-                              alignment: Alignment.topLeft,
+                            Container(
+                              alignment: Alignment.bottomLeft,
+                              padding: const EdgeInsets.all(
+                                20,
+                              ).copyWith(bottom: 70),
                               child: GestureDetector(
                                 onTap:
                                     () => _showEnlargedImage(community.avatar),
@@ -114,22 +105,62 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                                   backgroundImage: NetworkImage(
                                     community.avatar,
                                   ),
+                                  radius: 45,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 5),
+                            Container(
+                              alignment: Alignment.bottomLeft,
+                              padding: const EdgeInsets.all(20),
+                              child:
+                                  !community.mods.contains(user.uid)
+                                      ? OutlinedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 25,
+                                          ),
+                                        ),
+                                        onPressed:
+                                            () => joinCommunity(
+                                              community,
+                                              context,
+                                            ),
+                                        child: Text(
+                                          community.members.contains(user.uid)
+                                              ? 'Joined'
+                                              : 'Join',
+                                          style: const TextStyle(
+                                            color: Colors.lightBlueAccent,
+                                          ),
+                                        ),
+                                      )
+                                      : const SizedBox.shrink(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.all(16),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
                                   'm/${community.name}',
                                   style: const TextStyle(
-                                    fontSize: 19,
+                                    fontSize: 22,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                community.mods.contains(user.uid)
-                                    ? OutlinedButton(
+                                if (!isGuest)
+                                  if (community.mods.contains(user.uid))
+                                    OutlinedButton(
                                       style: ElevatedButton.styleFrom(
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
@@ -140,34 +171,10 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                                           horizontal: 25,
                                         ),
                                       ),
-                                      onPressed: () {
-                                        navigateToModTools(context);
-                                      },
+                                      onPressed:
+                                          () => navigateToModTools(context),
                                       child: const Text(
                                         'Mod Tools',
-                                        style: TextStyle(
-                                          color: Colors.lightBlueAccent,
-                                        ),
-                                      ),
-                                    )
-                                    : OutlinedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 25,
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        joinCommunity(community, context);
-                                      },
-                                      child: Text(
-                                        community.members.contains(user.uid)
-                                            ? 'Joined'
-                                            : 'Join',
                                         style: TextStyle(
                                           color: Colors.lightBlueAccent,
                                         ),
@@ -175,18 +182,76 @@ class _CommunityScreenState extends ConsumerState<CommunityScreen> {
                                     ),
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10),
-                              child: Text(
-                                '${community.members.length} members',
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Icon(Icons.people, size: 20),
+                                const SizedBox(width: 5),
+                                Text(
+                                  '${community.members.length} members',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Posts',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
+                            const SizedBox(height: 10),
+                            const Divider(thickness: 2),
                           ]),
                         ),
                       ),
                     ];
                   },
-                  body: Container(),
+                  body: ref
+                      .watch(getCommunityPostsProvider(widget.name))
+                      .when(
+                        data: (data) {
+                          if (data.isEmpty) {
+                            return Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(
+                                    Icons.post_add,
+                                    size: 60,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(height: 20),
+                                  Text(
+                                    'No posts available yet',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+
+                          return ListView.builder(
+                            itemCount: data.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final post = data[index];
+                              return PostCard(post: post);
+                            },
+                          );
+                        },
+                        error: (error, stackTrace) {
+                          return ErrorText(error: error.toString());
+                        },
+                        loading: () => const Loader(),
+                      ),
                 ),
             error: (error, stackTrace) => ErrorText(error: error.toString()),
             loading: () => const Loader(),

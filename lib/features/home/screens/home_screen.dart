@@ -1,15 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mosaic/features/auth/controller/auth_controller.dart';
+import 'package:mosaic/features/feed/feed_screen.dart';
 import 'package:mosaic/features/home/delegates/search_community_delegate.dart';
 import 'package:mosaic/features/home/drawers/community_list_darwer.dart';
 import 'package:mosaic/features/home/drawers/profile_drawer.dart';
+import 'package:mosaic/features/post/screens/add_post_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+// Change to StatefulWidget to manage scroll controller
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   static final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>();
+  final ScrollController _scrollController = ScrollController();
+  bool _isRefreshing = false;
+
   void displayDrawer() {
     _scaffoldKey.currentState?.openDrawer();
   }
@@ -18,10 +29,53 @@ class HomeScreen extends ConsumerWidget {
     _scaffoldKey.currentState?.openEndDrawer();
   }
 
+  // Updated method to refresh home and user data
+  Future<void> _refreshHome() async {
+    setState(() {
+      _isRefreshing = true;
+    });
+
+    try {
+      // Actually refresh the user data from Firebase
+      await ref.read(authControllerProvider.notifier).refreshUserData();
+
+      // You can also refresh other data if needed
+      // For example, refresh communities or posts
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error refreshing: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRefreshing = false;
+        });
+      }
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    // Refresh data when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshHome();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final user = ref.watch(userProvider)!;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isGuest = !user.isAuthenticated;
 
     return Scaffold(
       key: _scaffoldKey, // Add the GlobalKey to the Scaffold
@@ -55,9 +109,7 @@ class HomeScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: IconButton(
-                onPressed:
-                    () =>
-                        displayDrawer(), // Updated to use the method without context
+                onPressed: () => displayDrawer(),
                 icon: const Icon(Icons.menu_rounded, size: 22),
                 padding: EdgeInsets.zero,
                 tooltip: 'Menu',
@@ -88,9 +140,7 @@ class HomeScreen extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(right: 12.0, left: 6.0),
             child: IconButton(
-              onPressed:
-                  () =>
-                      displayEndDrawer(), // Updated to use the method without context
+              onPressed: () => displayEndDrawer(),
               icon: Container(
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.white, width: 2),
@@ -107,8 +157,8 @@ class HomeScreen extends ConsumerWidget {
           ),
         ],
       ),
-      drawer: const CommunityListDarwer(),
-      endDrawer: const ProfileDrawer(),
+      drawer: const CommunityListDrawer(),
+      endDrawer: isGuest ? null : const ProfileDrawer(),
       backgroundColor:
           isDarkMode ? const Color(0xFF121212) : Colors.grey.shade100,
       body: Column(
@@ -180,46 +230,59 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
           Expanded(
-            child: Center(
-              child: Text(
-                'Content goes here',
-                style: TextStyle(
-                  color: isDarkMode ? Colors.white70 : Colors.black54,
-                ),
-              ),
+            child: Stack(
+              children: [
+                // Feed with scroll controller
+                FeedScreen(scrollController: _scrollController),
+
+                // Loading overlay when refreshing
+                if (_isRefreshing)
+                  Container(
+                    color: Colors.black26,
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
+              ],
             ),
           ),
-          BottomNavigationBar(
-            backgroundColor:
-                isDarkMode ? const Color(0xFF212121) : Colors.white,
-            selectedItemColor: Theme.of(context).colorScheme.primary,
-            unselectedItemColor:
-                isDarkMode ? Colors.white60 : Colors.grey.shade600,
-            type: BottomNavigationBarType.fixed,
-            elevation: 8.0,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.post_add),
-                label: 'Post',
-              ),
-            ],
-            currentIndex: 0,
-            onTap: (index) {
-              if (index == 0) {
-                // Already on home screen, do nothing
-                // You could add refresh functionality here if needed
-              } else if (index == 1) {
-                // Post button - show message for now as the page doesn't exist yet
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Post creation feature coming soon!'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
-            },
-          ),
+          // Only show bottom navigation bar for authenticated users
+          if (!isGuest)
+            BottomNavigationBar(
+              backgroundColor:
+                  isDarkMode ? const Color(0xFF212121) : Colors.white,
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              unselectedItemColor:
+                  isDarkMode ? Colors.white60 : Colors.grey.shade600,
+              type: BottomNavigationBarType.fixed,
+              elevation: 8.0,
+              items: const [
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.post_add),
+                  label: 'Post',
+                ),
+              ],
+              currentIndex: 0,
+              onTap: (index) {
+                if (index == 0) {
+                  // If already at home, scroll to top and refresh
+                  if (_scrollController.hasClients) {
+                    _scrollController.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                  _refreshHome();
+                } else if (index == 1) {
+                  // Navigate to the AddPostScreen
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const AddPostScreen(),
+                    ),
+                  );
+                }
+              },
+            ),
         ],
       ),
     );
