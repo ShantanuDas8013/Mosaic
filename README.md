@@ -1,6 +1,6 @@
 # Mosaic
 
-Mosaic is a Reddit-like community platform built with Flutter. It allows users to create and join communities, post content, interact with posts, and manage community moderation tools. The project demonstrates advanced Flutter concepts, state management with Riverpod, and integration with Firebase for authentication, storage, and real-time updates.
+Mosaic is a community platform built with Flutter. It allows users to create and join communities, post content, interact with posts, and manage community moderation tools. The project demonstrates advanced Flutter concepts, state management with Riverpod, and integration with Firebase for authentication, storage, and real-time updates.
 
 ## Features
 
