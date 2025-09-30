@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -37,43 +38,47 @@ class AuthRepository {
 
   FutureEither<UserModel> signInWithGoogle(bool isFromLogin) async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      // If user cancels the Google Sign In flow
-      if (googleUser == null) {
-        return left(Failure('Google Sign In was canceled'));
-      }
-
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
       UserCredential userCredential;
-
-      if (isFromLogin) {
-        userCredential = await _auth.signInWithCredential(credential);
+      if (kIsWeb) {
+        GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        userCredential = await _auth.signInWithPopup(googleProvider);
       } else {
-        // Try to link the Google account to the anonymous account
-        try {
-          userCredential = await _auth.currentUser!.linkWithCredential(
-            credential,
-          );
-        } on FirebaseAuthException catch (e) {
-          // If the credential is already associated with another account
-          if (e.code == 'credential-already-in-use' ||
-              e.message?.contains(
-                    'credential is already associated with a different user account',
-                  ) ==
-                  true) {
-            // Sign out the anonymous user
-            await _auth.signOut();
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
-            // Sign in with the Google credential directly
-            userCredential = await _auth.signInWithCredential(credential);
-          } else {
-            rethrow;
+        // If user cancels the Google Sign In flow
+        if (googleUser == null) {
+          return left(Failure('Google Sign In was canceled'));
+        }
+
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        if (isFromLogin) {
+          userCredential = await _auth.signInWithCredential(credential);
+        } else {
+          // Try to link the Google account to the anonymous account
+          try {
+            userCredential = await _auth.currentUser!.linkWithCredential(
+              credential,
+            );
+          } on FirebaseAuthException catch (e) {
+            // If the credential is already associated with another account
+            if (e.code == 'credential-already-in-use' ||
+                e.message?.contains(
+                      'credential is already associated with a different user account',
+                    ) ==
+                    true) {
+              // Sign out the anonymous user
+              await _auth.signOut();
+
+              // Sign in with the Google credential directly
+              userCredential = await _auth.signInWithCredential(credential);
+            } else {
+              rethrow;
+            }
           }
         }
       }

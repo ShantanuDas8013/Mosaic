@@ -51,7 +51,7 @@ class _MyAppState extends ConsumerState<MyApp> {
           data:
               (data) => MaterialApp.router(
                 debugShowCheckedModeBanner: false,
-                title: 'Reddit Tutorial',
+                title: 'Mosaic',
                 // Use theme based on current state
                 theme:
                     isDarkMode
