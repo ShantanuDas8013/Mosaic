@@ -117,10 +117,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       children: [
         // Logo above tagline
         Container(
-          width: 100,
-          height: 100,
+          width: 120,
+          height: 120,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
+            image: DecorationImage(
+              image: AssetImage('assets/images/app_logo.jpg'),
+              fit: BoxFit.cover,
+            ),
             boxShadow: [
               BoxShadow(
                 color: primaryColor.withValues(alpha: 0.3),
@@ -128,21 +132,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 offset: const Offset(0, 15),
               ),
             ],
-          ),
-          child: ClipOval(
-            child: Image.asset(
-              'assets/images/logo.png',
-              fit: BoxFit.cover,
-              // Fallback icon only if image fails to load
-              errorBuilder:
-                  (context, error, stackTrace) => Center(
-                    child: Icon(
-                      Icons.dashboard_rounded,
-                      color: Colors.white,
-                      size: 50,
-                    ),
-                  ),
-            ),
           ),
         ),
         const SizedBox(height: 24),

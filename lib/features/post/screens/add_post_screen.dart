@@ -91,6 +91,7 @@ class AddPostScreen extends ConsumerWidget {
                           description: 'Share photos, screenshots, or artwork',
                           onTap: () => navigateToType(context, 'image'),
                           isDarkMode: isDarkMode,
+                          backgroundImage: 'assets/images/image_card.png',
                         ),
                         _buildPostTypeCard(
                           context: context,
@@ -99,6 +100,7 @@ class AddPostScreen extends ConsumerWidget {
                           description: 'Share your thoughts or ask questions',
                           onTap: () => navigateToType(context, 'text'),
                           isDarkMode: isDarkMode,
+                          backgroundImage: 'assets/images/text_card.png',
                         ),
                         _buildPostTypeCard(
                           context: context,
@@ -107,6 +109,7 @@ class AddPostScreen extends ConsumerWidget {
                           description: 'Share URLs to interesting content',
                           onTap: () => navigateToType(context, 'link'),
                           isDarkMode: isDarkMode,
+                          backgroundImage: 'assets/images/link_card.png',
                         ),
                       ],
                     );
@@ -162,46 +165,109 @@ class AddPostScreen extends ConsumerWidget {
     required String description,
     required VoidCallback onTap,
     required bool isDarkMode,
+    String? backgroundImage,
   }) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 45,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isDarkMode ? Colors.white : Colors.black87,
+        child:
+            backgroundImage != null
+                ? Column(
+                  children: [
+                    // Top 70% - Image
+                    Expanded(
+                      flex: 7,
+                      child: Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage(backgroundImage),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Bottom 30% - Text content
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              icon,
+                              size: 45,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    isDarkMode ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              description,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color:
+                                    isDarkMode
+                                        ? Colors.grey.shade400
+                                        : Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+                : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        icon,
+                        size: 45,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isDarkMode ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        description,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color:
+                              isDarkMode
+                                  ? Colors.grey.shade400
+                                  : Colors.grey.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      isDarkMode ? Colors.grey.shade400 : Colors.grey.shade700,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -84,7 +84,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.dashboard_rounded, color: Colors.white, size: 28),
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/app_logo.jpg'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Mosaic',
