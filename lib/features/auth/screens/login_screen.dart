@@ -1,9 +1,11 @@
 import "package:flutter/material.dart";
+import "dart:math";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:mosaic/core/common/loader.dart";
 import "package:mosaic/core/common/sign_in_button.dart";
 import "package:mosaic/core/constants/constants.dart";
 import "package:mosaic/features/auth/controller/auth_controller.dart";
+import "package:mosaic/responsive/responsive.dart";
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -90,7 +92,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         const SizedBox(height: 40),
                         _buildIllustration(),
                         const SizedBox(height: 40),
-                        _buildMainCard(),
+                        Center(child: _buildMainCard()),
                         const SizedBox(height: 24),
                         _buildFeatures(),
                         const SizedBox(height: 40),
@@ -184,7 +186,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   Widget _buildMainCard() {
     return Container(
-      width: double.infinity,
+      width: min(500.0, MediaQuery.of(context).size.width * 0.9),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
@@ -224,9 +226,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
-            const SignInButton(),
+            Responsive(child: const SignInButton()),
             const SizedBox(height: 16),
-            _buildGuestButton(),
+            Responsive(child: _buildGuestButton()),
           ],
         ),
       ),
