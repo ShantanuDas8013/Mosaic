@@ -58,9 +58,11 @@ class CommunityController extends StateNotifier<bool> {
   void createCommunity(String name, BuildContext context) async {
     state = true;
     final uid = _ref.read(userProvider)?.uid ?? '';
+    // Convert community name to lowercase for consistent searching
+    final communityName = name.toLowerCase().trim();
     Community community = Community(
-      id: name,
-      name: name,
+      id: communityName,
+      name: communityName,
       banner: Constants.bannerDefault,
       avatar: Constants.avatarDefault,
       members: [uid],

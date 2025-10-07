@@ -90,7 +90,7 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
                                 color: isDarkMode ? Colors.white : Colors.black,
                               ),
                               decoration: InputDecoration(
-                                hintText: 'm/Community_name',
+                                hintText: 'm/community_name',
                                 hintStyle: TextStyle(
                                   color:
                                       isDarkMode
@@ -126,6 +126,20 @@ class _CreateCommunityScreenState extends ConsumerState<CreateCommunityScreen> {
                                 contentPadding: const EdgeInsets.all(18),
                               ),
                               maxLength: 21,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 12, top: 4),
+                              child: Text(
+                                'Community names will be converted to lowercase',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color:
+                                      isDarkMode
+                                          ? Colors.grey.shade500
+                                          : Colors.grey.shade600,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 30),
                             SizedBox(

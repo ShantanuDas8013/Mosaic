@@ -11,11 +11,9 @@ class AddPostScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Get theme data
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = Theme.of(context).colorScheme.primary;
-
-    // Calculate bottom padding to avoid overflow with navigation bar
-    final bottomPadding = MediaQuery.of(context).padding.bottom + 70;
 
     return Scaffold(
       appBar: AppBar(
@@ -30,8 +28,6 @@ class AddPostScreen extends ConsumerWidget {
           isDarkMode ? const Color(0xFF121212) : Colors.grey.shade100,
       body: SafeArea(
         child: SingleChildScrollView(
-          // Add padding at the bottom to prevent overflow
-          padding: EdgeInsets.only(bottom: bottomPadding),
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -67,70 +63,93 @@ class AddPostScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 24),
+                // Post type options with responsive grid
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    // Calculate cross axis count based on screen width
+                    int crossAxisCount = 1; // Default for small screens
+                    if (constraints.maxWidth >= 600) {
+                      crossAxisCount = 2; // Tablet and larger
+                    }
+                    if (constraints.maxWidth >= 900) {
+                      crossAxisCount = 3; // Desktop
+                    }
 
-                // Post type options with adjusted aspect ratio
-                GridView.count(
-                  crossAxisCount: 2, // 2 cards per row
-                  crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0, // Increased spacing between rows
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  childAspectRatio: 0.85, // Adjusted to provide proper height
-                  children: [
-                    // Image Post Card
-                    _buildPostTypeCard(
-                      context: context,
-                      icon: Icons.image_outlined,
-                      title: 'Image Post',
-                      description: 'Share photos, screenshots, or artwork',
-                      onTap: () => navigateToType(context, 'image'),
-                      isDarkMode: isDarkMode,
-                    ),
-
-                    // Text Post Card
-                    _buildPostTypeCard(
-                      context: context,
-                      icon: Icons.text_snippet_outlined,
-                      title: 'Text Post',
-                      description: 'Share your thoughts or ask questions',
-                      onTap: () => navigateToType(context, 'text'),
-                      isDarkMode: isDarkMode,
-                    ),
-
-                    // Link Post Card
-                    _buildPostTypeCard(
-                      context: context,
-                      icon: Icons.link,
-                      title: 'Link Post',
-                      description: 'Share URLs to interesting content',
-                      onTap: () => navigateToType(context, 'link'),
-                      isDarkMode: isDarkMode,
-                    ),
-                  ],
+                    return GridView.count(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 16.0,
+                      mainAxisSpacing: 16.0,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      childAspectRatio: 0.85,
+                      children: [
+                        _buildPostTypeCard(
+                          context: context,
+                          icon: Icons.image_outlined,
+                          title: 'Image Post',
+                          description: 'Share photos, screenshots, or artwork',
+                          onTap: () => navigateToType(context, 'image'),
+                          isDarkMode: isDarkMode,
+                        ),
+                        _buildPostTypeCard(
+                          context: context,
+                          icon: Icons.text_snippet_outlined,
+                          title: 'Text Post',
+                          description: 'Share your thoughts or ask questions',
+                          onTap: () => navigateToType(context, 'text'),
+                          isDarkMode: isDarkMode,
+                        ),
+                        _buildPostTypeCard(
+                          context: context,
+                          icon: Icons.link,
+                          title: 'Link Post',
+                          description: 'Share URLs to interesting content',
+                          onTap: () => navigateToType(context, 'link'),
+                          isDarkMode: isDarkMode,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: isDarkMode ? const Color(0xFF212121) : Colors.white,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: isDarkMode ? Colors.white60 : Colors.grey.shade600,
-        type: BottomNavigationBarType.fixed,
-        elevation: 8.0,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.post_add), label: 'Post'),
-        ],
-        currentIndex: 1,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.of(context).pop();
-          }
-        },
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 620, vertical: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: isDarkMode ? const Color(0xFF212121) : Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          backgroundColor: Colors.transparent,
+          selectedItemColor: Theme.of(context).colorScheme.primary,
+          unselectedItemColor:
+              isDarkMode ? Colors.white60 : Colors.grey.shade600,
+          type: BottomNavigationBarType.fixed,
+          elevation: 0.0,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.post_add), label: 'Post'),
+          ],
+          currentIndex: 1,
+          onTap: (index) {
+            if (index == 0) {
+              // Navigate back to home screen
+              Navigator.of(context).pop();
+            }
+            // No action needed if index is 1 (already on this screen)
+          },
+        ),
       ),
     );
   }
@@ -152,16 +171,16 @@ class AddPostScreen extends ConsumerWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(16.0), // Reduced padding
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
-                size: 45, // Slightly reduced icon size
+                size: 45,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(height: 12), // Reduced spacing
+              const SizedBox(height: 12),
               Text(
                 title,
                 style: TextStyle(
@@ -170,7 +189,7 @@ class AddPostScreen extends ConsumerWidget {
                   color: isDarkMode ? Colors.white : Colors.black87,
                 ),
               ),
-              const SizedBox(height: 6), // Reduced spacing
+              const SizedBox(height: 6),
               Text(
                 description,
                 textAlign: TextAlign.center,

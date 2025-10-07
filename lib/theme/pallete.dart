@@ -41,10 +41,11 @@ class Pallete {
   static var lightModeAppTheme = ThemeData.light().copyWith(
     scaffoldBackgroundColor: whiteColor,
     cardColor: greyColor,
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: whiteColor,
       elevation: 0,
-      iconTheme: IconThemeData(color: blackColor),
+      iconTheme: const IconThemeData(color: Colors.black),
+      titleTextStyle: const TextStyle(color: Colors.black),
     ),
     drawerTheme: const DrawerThemeData(backgroundColor: whiteColor),
     primaryColor: redColor,

@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Flutter Web (Chrome Profile 2)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "chrome",
+                // 1. Point to the main User Data folder
+                "--web-browser-flag=--user-data-dir=C:\\Users\\shant\\AppData\\Local\\Google\\Chrome\\User Data",
+            ]
+        }
+    ]
+}

@@ -50,6 +50,13 @@ class UserProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final size = MediaQuery.of(context).size;
+    final expandedHeight = size.width > 800 ? 400.0 : 300.0;
+    final avatarRadius = size.width > 800 ? 60.0 : 45.0;
+    final paddingValue = size.width > 800 ? 30.0 : 20.0;
+    final bottomPaddingAvatar = size.width > 800 ? 90.0 : 70.0;
+    final buttonHorizontalPadding = size.width > 800 ? 35.0 : 25.0;
+
     return Scaffold(
       body: ref
           .watch(getUserDataProvider(uid))
@@ -59,7 +66,7 @@ class UserProfileScreen extends ConsumerWidget {
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return [
                       SliverAppBar(
-                        expandedHeight: 250,
+                        expandedHeight: expandedHeight,
                         floating: true,
                         snap: true,
                         flexibleSpace: Stack(
@@ -74,14 +81,25 @@ class UserProfileScreen extends ConsumerWidget {
                                 child: Image.network(
                                   user.bannner,
                                   fit: BoxFit.cover,
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Container(
+                                        color: Colors.blueGrey,
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.image_not_supported,
+                                            color: Colors.white,
+                                            size: 50,
+                                          ),
+                                        ),
+                                      ),
                                 ),
                               ),
                             ),
                             Container(
                               alignment: Alignment.bottomLeft,
-                              padding: const EdgeInsets.all(
-                                20,
-                              ).copyWith(bottom: 70),
+                              padding: EdgeInsets.all(
+                                paddingValue,
+                              ).copyWith(bottom: bottomPaddingAvatar),
                               child: GestureDetector(
                                 onTap:
                                     () => _showEnlargedImage(
@@ -92,21 +110,21 @@ class UserProfileScreen extends ConsumerWidget {
                                   backgroundImage: NetworkImage(
                                     user.profilePic,
                                   ),
-                                  radius: 45,
+                                  radius: avatarRadius,
                                 ),
                               ),
                             ),
                             Container(
                               alignment: Alignment.bottomLeft,
-                              padding: const EdgeInsets.all(20),
+                              padding: EdgeInsets.all(paddingValue),
                               child: OutlinedButton(
                                 onPressed: () => navigateToEditUser(context),
                                 style: ElevatedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(20),
                                   ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 25,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: buttonHorizontalPadding,
                                   ),
                                 ),
                                 child: const Text(

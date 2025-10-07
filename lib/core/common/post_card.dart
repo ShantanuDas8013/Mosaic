@@ -110,15 +110,21 @@ class PostCard extends ConsumerWidget {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            'r/${post.communityName}',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color:
-                                                  isDarkMode
-                                                      ? Colors.white
-                                                      : Colors.black87,
+                                          GestureDetector(
+                                            onTap:
+                                                () => navigateToCommunity(
+                                                  context,
+                                                ),
+                                            child: Text(
+                                              'r/${post.communityName}',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    isDarkMode
+                                                        ? Colors.white
+                                                        : Colors.black87,
+                                              ),
                                             ),
                                           ),
                                           GestureDetector(
@@ -428,45 +434,178 @@ class PostCard extends ConsumerWidget {
                                               context: context,
                                               builder:
                                                   (context) => Dialog(
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                            20,
-                                                          ),
-                                                      child: GridView.builder(
-                                                        shrinkWrap: true,
-                                                        gridDelegate:
-                                                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                                              crossAxisCount: 4,
+                                                    child: ConstrainedBox(
+                                                      constraints: BoxConstraints(
+                                                        maxWidth:
+                                                            MediaQuery.of(
+                                                                      context,
+                                                                    ).size.width >
+                                                                    600
+                                                                ? 500
+                                                                : MediaQuery.of(
+                                                                      context,
+                                                                    ).size.width *
+                                                                    0.9,
+                                                        maxHeight:
+                                                            MediaQuery.of(
+                                                              context,
+                                                            ).size.height *
+                                                            0.7,
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              20,
                                                             ),
-                                                        itemCount:
-                                                            user.awards.length,
-                                                        itemBuilder: (
-                                                          BuildContext context,
-                                                          int index,
-                                                        ) {
-                                                          final award =
-                                                              user.awards[index];
-
-                                                          return GestureDetector(
-                                                            onTap:
-                                                                () => awardPost(
-                                                                  ref,
-                                                                  award,
-                                                                  context,
-                                                                ),
-                                                            child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets.all(
-                                                                    8.0,
+                                                        child: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Text(
+                                                                  'Select Award',
+                                                                  style: TextStyle(
+                                                                    fontSize:
+                                                                        MediaQuery.of(context).size.width >
+                                                                                600
+                                                                            ? 20
+                                                                            : 18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold,
                                                                   ),
-                                                              child: Image.asset(
-                                                                Constants
-                                                                    .awards[award]!,
+                                                                ),
+                                                                IconButton(
+                                                                  icon: const Icon(
+                                                                    Icons.close,
+                                                                  ),
+                                                                  onPressed:
+                                                                      () =>
+                                                                          Navigator.of(
+                                                                            context,
+                                                                          ).pop(),
+                                                                  tooltip:
+                                                                      'Close',
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            const Divider(),
+                                                            const SizedBox(
+                                                              height: 10,
+                                                            ),
+                                                            Flexible(
+                                                              child: GridView.builder(
+                                                                shrinkWrap:
+                                                                    true,
+                                                                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                                                  crossAxisCount:
+                                                                      MediaQuery.of(
+                                                                                context,
+                                                                              ).size.width >
+                                                                              600
+                                                                          ? 4
+                                                                          : 3,
+                                                                  crossAxisSpacing:
+                                                                      12,
+                                                                  mainAxisSpacing:
+                                                                      12,
+                                                                  childAspectRatio:
+                                                                      1,
+                                                                ),
+                                                                itemCount:
+                                                                    user
+                                                                        .awards
+                                                                        .length,
+                                                                itemBuilder: (
+                                                                  BuildContext
+                                                                  context,
+                                                                  int index,
+                                                                ) {
+                                                                  final award =
+                                                                      user.awards[index];
+
+                                                                  return GestureDetector(
+                                                                    onTap:
+                                                                        () => awardPost(
+                                                                          ref,
+                                                                          award,
+                                                                          context,
+                                                                        ),
+                                                                    child: Container(
+                                                                      decoration: BoxDecoration(
+                                                                        color:
+                                                                            Theme.of(
+                                                                                      context,
+                                                                                    ).brightness ==
+                                                                                    Brightness.dark
+                                                                                ? Colors.grey.shade800
+                                                                                : Colors.grey.shade100,
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                              12,
+                                                                            ),
+                                                                        border: Border.all(
+                                                                          color:
+                                                                              Theme.of(
+                                                                                        context,
+                                                                                      ).brightness ==
+                                                                                      Brightness.dark
+                                                                                  ? Colors.grey.shade700
+                                                                                  : Colors.grey.shade300,
+                                                                        ),
+                                                                      ),
+                                                                      padding:
+                                                                          const EdgeInsets.all(
+                                                                            12.0,
+                                                                          ),
+                                                                      child: Column(
+                                                                        mainAxisAlignment:
+                                                                            MainAxisAlignment.center,
+                                                                        children: [
+                                                                          Expanded(
+                                                                            child: Image.asset(
+                                                                              Constants.awards[award]!,
+                                                                              fit:
+                                                                                  BoxFit.contain,
+                                                                            ),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            height:
+                                                                                4,
+                                                                          ),
+                                                                          Text(
+                                                                            award,
+                                                                            style: TextStyle(
+                                                                              fontSize:
+                                                                                  MediaQuery.of(
+                                                                                            context,
+                                                                                          ).size.width >
+                                                                                          600
+                                                                                      ? 11
+                                                                                      : 10,
+                                                                              fontWeight:
+                                                                                  FontWeight.w500,
+                                                                            ),
+                                                                            textAlign:
+                                                                                TextAlign.center,
+                                                                            maxLines:
+                                                                                1,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis,
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
                                                               ),
                                                             ),
-                                                          );
-                                                        },
+                                                          ],
+                                                        ),
                                                       ),
                                                     ),
                                                   ),

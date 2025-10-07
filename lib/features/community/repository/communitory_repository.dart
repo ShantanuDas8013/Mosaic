@@ -125,18 +125,22 @@ class CommunitoryRespository {
   }
 
   Stream<List<Community>> searchCommunity(String query) {
+    // Convert query to lowercase for case-insensitive search
+    final searchQuery = query.toLowerCase().trim();
+
+    if (searchQuery.isEmpty) {
+      // Return empty list if query is empty
+      return Stream.value([]);
+    }
+
+    // Create the end range for prefix matching
+    // This creates a string that is just after all strings starting with the query
+    final end =
+        searchQuery.substring(0, searchQuery.length - 1) +
+        String.fromCharCode(searchQuery.codeUnitAt(searchQuery.length - 1) + 1);
+
     return _communities
-        .where(
-          'name',
-          isGreaterThanOrEqualTo: query.isEmpty ? 0 : query,
-          isLessThan:
-              query.isEmpty
-                  ? null
-                  : query.substring(0, query.length - 1) +
-                      String.fromCharCode(
-                        query.codeUnitAt(query.length - 1) + 1,
-                      ),
-        )
+        .where('name', isGreaterThanOrEqualTo: searchQuery, isLessThan: end)
         .snapshots()
         .map((event) {
           List<Community> communities = [];
@@ -145,6 +149,8 @@ class CommunitoryRespository {
               Community.fromMap(community.data() as Map<String, dynamic>),
             );
           }
+          // Sort by name to show results in alphabetical order
+          communities.sort((a, b) => a.name.compareTo(b.name));
           return communities;
         });
   }
